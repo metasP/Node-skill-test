@@ -3,29 +3,29 @@ var app = express();
 var bodyParser = require('body-parser');
 var request = require('request');
 
-var html = '<form action="/" method="post">'+
-'Github user:<br>'+
-'<input type="text" name="user">'+
-'<input type="submit" value="Submit"></form>';
+app.set('view engine', 'ejs');
+app.use(express.static(__dirname + '/public'));
 
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 
 app.get('/', function (req, res) {
-  res.send(html);
+  res.render('index', { 'keyword': '', followers: [], error: ''});
 });
 
 app.post('/', function(req, res){
   var user = req.body.user;
-  getList(user, res);
+  getList(user, function(followers, error){
+    res.render('index', { 'keyword': user, 'followers': followers, 'error': error});
+  });
 });
 
 app.listen(8080, function () {
-  console.log('Example app listening on port 8080!');
+  console.log('App listening on port 8080!');
 });
 
-function getList(user, res) {
+function getList(user, callback) {
   var options = {
     method: 'GET',
     url: 'https://api.github.com/users/'+ user +'/followers',
@@ -34,23 +34,11 @@ function getList(user, res) {
   //pichaya
   request(options, function (error, response, body) {
     if (!error && response.statusCode == 200) { // Success
-      console.log(body)
-      var table = '<table>'+
-      '<tr><th>avatar</th><th>login</th><th>url</th></tr>';
       var followers = JSON.parse(body);
-      console.log(followers);
-      for(var i in followers){
-        var follower = followers[i];
-        console.log(follower);
-        var image = '<img src="'+follower.avatar_url+'" width="50" height="50">';
-        var url = '<a href="'+follower.url+'">'+follower.url+'</a>';
-        var login = follower.login;
-        table += '<tr><td>'+image+'</td><td>'+login+'</td><td>'+url+'</td></tr>'
-      }
-      table += '</table>';
-      res.send(html+'<br>'+table);
+      return callback(followers);
     }else { // fail
-      res.send(html+'<br>'+error);
+      console.log(body);
+      return callback([], body);
     }
 
 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Github followers</title>
+    <meta name="description" content="List followers of a Github user">
+    <meta name="author" content="Metas Phongmetha">
+
+    <!-- styles -->
+    <link href="stylesheets/style.css" rel="stylesheet">
+
+  </head>
+  <body>
+    <form action="/" method="post">Github user:
+      <br>
+    <input type="text" name="user" value=<%=keyword%>>
+    <input type="submit" value="Submit"></form>
+    <br>
+    <h4>
+      <font color="red"><%= error %></font>
+    </h4>
+    <br>
+    <%if (followers.length>0) {%>
+      <table>
+        <tr>
+          <th>avatar</th>
+          <th>login</th>
+          <th>url</th>
+        </tr>
+        <% followers.forEach(function(follower) { %>
+          <tr>
+            <td>
+              <img src=<%= follower.avatar_url %> width="50" height="50">
+            </td>
+            <td>
+              <%= follower.login %>
+            </td>
+            <td>
+              <a href=<%= follower.url %>><%= follower.url %></a>
+            </td>
+          </tr>
+      <% }); %>
+      </table>
+    <%}%>
+
+  </body>
+</html>
